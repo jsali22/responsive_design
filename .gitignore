@@ -33,6 +33,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# do not commmit api keys
+lib/firebase_options.dart
+ios/Runner/GoogleService-Info.plist
+
 # Symbolication related
 app.*.symbols
 

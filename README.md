@@ -1,3 +1,20 @@
+# Lab 4
+- Double check api key post to github 
+- debug project so the login screen works
+- create an account screen by adding button to loggin screen (make it pretty)
+- check for erros like acount already exists
+- reset password
+- on successful login, go to a success screen (and not the profile screen)
+- on successful create account, navigate back to login screen
+    - first and last name
+    - username
+    - password
+    - create account button
+- add a sign out button on the success screen
+
+-  Not part of lab: add global state that all screens can access to check if we are currently logged in
+If not, go to login screen and update the global state
+
 # responsive_design
 
 A new Flutter project.

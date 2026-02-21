@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'auth_service.dart'; // authentication service to handle login logic (not implemented yet)
-import 'profile_card.dart';
-import 'signup_screen.dart'; // screen to navigate to when user taps the sign up button
+import 'package:responsive_design/login_screen.dart';
+import 'auth_service.dart'; // authentication service to handle login logic
 
 // Text input, password visibility toggle, form validation, and form state (all change states when user interacts with the form, so we need a StatefulWidget)
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-// a) This is whats created before the widget is built. It holds the mutable state for the LoginScreen widget.
-class _LoginScreenState extends State<LoginScreen> {
+// a) This is whats created before the widget is built. It holds the mutable state for the SignupScreen widget.
+class _SignupScreenState extends State<SignupScreen> {
 
   bool _passHidden = true; // password visibility toggle (true means password is hidden initially)
 
@@ -27,12 +26,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false; // loading state to show a loading circle indicator when the login process is happening
   final _authService = AuthService(); // instance of the authentication service to handle login logic (not implemented yet)
 
-  // b) This is what first gets rendered on the screen when the LoginScreen widget is created. It describes the UI of the login screen.
+  // b) This is what first gets rendered on the screen when the SignupScreen widget is created. It describes the UI of the signup screen.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text("Sign Up"),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -50,14 +49,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 _password(),
                 const SizedBox(height: 40),
                 // if _isLoading is true, show a loading (spinning circle) indicator, otherwise show the login button
-                _isLoading ? const Center(child: CircularProgressIndicator()) : _loginButton(),
+                _isLoading ? const Center(child: CircularProgressIndicator()) : _signUpButton(),
                 TextButton( // button to navigate to the sign up screen 
                   onPressed: () {
                     Navigator.of(context).push( // navigate to the sign up screen
-                      MaterialPageRoute(builder: (context) => const SignupScreen()), 
+                      MaterialPageRoute(builder: (context) => const LoginScreen()), 
                     );
                   },
-                  child: const Text("Don't have an account? Sign Up"),
+                  child: const Text("Already have an account? Log In"),
                 ),
               ],
               ),
@@ -69,8 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // _ for private methods
   Widget _header() {
-    return const Text('Welcome back!',
-    style: TextStyle(
+    return const Text('Welcome! \n Please sign up to continue...',
+      style: TextStyle(
       fontSize: 28,
       fontWeight: FontWeight.bold),
       textAlign: TextAlign.center,
@@ -117,26 +116,45 @@ class _LoginScreenState extends State<LoginScreen> {
         if (value == null || value.isEmpty) {
           return 'Please enter your password';
         }
+
         if (value.length < 8) {
           return 'Password must be at least 8 characters';
         }
+
+        if (!RegExp(r'[A-Z]').hasMatch(value)) {
+          return 'Must contain at least one uppercase letter';
+        }
+
+        if (!RegExp(r'[a-z]').hasMatch(value)) {
+          return 'Must contain at least one lowercase letter';
+        }
+
+        if (!RegExp(r'[0-9]').hasMatch(value)) {
+          return 'Must contain at least one digit';
+        }
+
+        if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+          return 'Must contain at least one symbol';
+        }
+
         return null;
       },
+
     );
   }
 
-  Widget _loginButton() {
+  Widget _signUpButton() {
     return ElevatedButton(
-      onPressed: _submitLogin, // If user taps the button, call the _submitLogin function to validate the form and proceed with login if valid
+      onPressed: _submitSignUp, // If user taps the button, call the _submitSignUp function to validate the form and proceed with sign up if valid
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
         textStyle: const TextStyle(fontSize: 18),
       ),
-      child: const Text('Log In'),
+      child: const Text('Sign Up'),
     );
   }
 
-  void _submitLogin() async {
+  void _submitSignUp() async {
     // call all validator functions of the form fields
     // ! means: I'm certain currentState is not going to be null because the button is inside the form
     if (!_formKey.currentState!.validate()) return;
@@ -148,32 +166,31 @@ class _LoginScreenState extends State<LoginScreen> {
       final password = _passwordController.text;
 
     try {
-      await _authService.signIn(email: username, password: password); // call the login function of the authentication service (not implemented yet)
+      await _authService.signUp(email: username, password: password);
 
-        // from the inherited state class, we can check to make sure signIn widget is still on the screen before we try to show a snackbar or dialog. This is important because if the user navigates away from the login screen before the login process completes, we don't want to try to show a snackbar or dialog on a screen that is no longer visible, which would cause an error.
-        if (!mounted) return; // TODO signout? // check if the widget is still on the screen (mounted is a property of the State class that indicates whether the widget is currently in the widget tree)
-    
-      // If login is successful, we can navigate back to the profile card or show a success message. For now, we'll just show a snackbar and a dialog with the username and password length (not secure to show password, so we just show the length for demonstration purposes)   
-      Navigator.of(context).pushReplacement( // navigate to the home screen and remove the login screen from the navigation stack (so user can't go back to it)
-        MaterialPageRoute(builder: (context) => const ProfileCard()), 
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
-    }
-    catch (e) {
-      if (!mounted) return; // TODO: error popup (toast) // check if the widget is still on the screen before showing the error message
 
-      
+    } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), // finds the nearest Scaffold widget and displays a snackbar at the bottom of the screen (temporary message that disappears after a few seconds)
-        backgroundColor: Colors.red,
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
         ),
       );
     }
+
     finally {
       if (!mounted) { // stop the spinning widget if the user navigates away from the login screen before the login process completes
       setState(() => _isLoading = false); // set loading state to false to hide the progress indicator
       }
     }
-    } // submitLogin
+    } // submitSignUp
 
   } 
 }

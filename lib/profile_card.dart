@@ -51,7 +51,7 @@ Widget _buildAvatar() {
     width: 100,
     height: 100,
     decoration: BoxDecoration(
-      color: Colors.blueAccent,
+      color: Colors.deepPurpleAccent,
       shape: BoxShape.circle,
     ),
     child: Icon(Icons.person, size: 50, color: Colors.white),
@@ -69,7 +69,7 @@ Widget _buildContent(BuildContext context) {
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), 
         ),
       Text('Major: Computer Science'),
-      Text('Favorite Class: CS220'),
+      Text('Favorite Class: CS450'),
       SizedBox(height: 20),
       ElevatedButton(
         onPressed: () {
